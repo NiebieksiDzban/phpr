@@ -1,6 +1,5 @@
 RewriteEngine On
-RewriteBase /grzesiu/
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^ index.php [QSA,L]
 
+# Send all requests into /public (except ones already there)
+RewriteCond %{REQUEST_URI} !^/grzesiu/public/ [NC]
+RewriteRule ^(.*)$ public/$1 [L]
