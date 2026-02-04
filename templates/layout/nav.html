@@ -1,0 +1,114 @@
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Document</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="#">Navbar</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <li class="nav-item">
+                    <a class="nav-link active" aria-current="page" href="#">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Apap
+
+                    </a>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false" href="#">
+                         Account
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-person-circle" viewBox="0 0 16 16">
+                            <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0"/>
+                            <path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8m8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1"/>
+                        </svg>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="#">Registration</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="#">Log in</a></li>
+                    </ul>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Features</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link disabled" aria-disabled="true">Disabled</a>
+                </li>
+            </ul>
+            <form class="d-flex" role="search">
+                <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+                <button class="btn btn-outline-success" type="submit">Search</button>
+            </form>
+        </div>
+    </div>
+</nav>
+<main>
+    <p>lorem</p>
+</main>
+<script>
+    let list = ["adam","beata","cogah"]; // Elementy do wyszukiwania
+    console.log(list);
+
+    const inputSearch = document.querySelector("form[role='search']>input[type='search']"); // odwolanie do inputa
+    const main = document.querySelector("main");                                            // odwolanie do main
+    let addedInMain = [];                                                                   // elementy dodane do maina
+
+
+    inputSearch.addEventListener("keyup",()=>{                                              // kiedy zostala zaktualizowany input
+        while(addedInMain.length >= 1){                                                     // usuwa elementy po poprzednim wyszukiwaniu
+            addedInMain[0].remove()
+            addedInMain.shift()
+        }
+
+        const searching = inputSearch.value;                                                // pobiera wpisaną wartość
+        let result = [];                                                                    // tutaj będą przechowywane gotowe elementy innerHTML
+
+        if( searching.trim().length > 0)                                                    // wyszukiwarka dziala, jeśli coś jest w inpucie
+        {
+            const regSearch = new RegExp(searching, "gm");                                  // regex znajdujący wpisaną frazę
+
+            list.forEach(product =>{
+                // znajduje z listy indexy, w których wystepuje podana fraza
+                const matchingSearch = product.matchAll(regSearch);
+                let indexes = []
+                for(const match of matchingSearch) {
+                    indexes.push(match.index)
+                }
+
+                if(indexes.length > 0) {                                                    // długość 0 oznacza, ze nie znaleziono wyników, bo nie ma indexu
+                    let stringWithMark = "";                                                // tworzenie stringa z wyróżnieniem podanej frazy
+                    let endOfMark = 0                                                       // granica z wyróznieniem
+                    for (let i of indexes) {                                                // wychwytuje index, od której zaczyna się dana fraza
+                        stringWithMark += product.slice(endOfMark, i);                      // dodaje do stringa zawartości niewyróżnionej
+                        endOfMark = (i + searching.length);                                 // oblicza koniec wyroznienia dodając do indexu zaczynającego fraze, długość frazy
+                        stringWithMark += "<mark>" + product.slice(i, endOfMark) + "</mark>"; // dodanie wyrożnionego elementu
+                    }
+                    console.log(endOfMark)
+                    stringWithMark += product.slice(endOfMark, product.length)              // gdy indexy się z wyróżnieniem się skończyły, konkatenuje ewentuale pozostałości stringa
+                    result.push(stringWithMark);                                            // dołącza do tablicy z innerHTML
+                }
+            })
+        }
+        for(let ind in result) {                                                            // dla każdej wyszukanej frazy, tworzy element w tablicy i dodaje go do maina
+            addedInMain.push(document.createElement("p"));
+            addedInMain[addedInMain.length-1].innerHTML = result[ind];
+            main.appendChild(addedInMain[addedInMain.length-1]);
+        }
+    })
+</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+</body>
+</html>
+
+
+
+
