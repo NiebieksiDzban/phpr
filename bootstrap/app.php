@@ -17,9 +17,10 @@
         'DB_NAME',
     ]);
 
-    $router = new Router();
 
 // Register routes
+    $router = new Router();
+
     require $root . '/config/routes.php';
 
     return [

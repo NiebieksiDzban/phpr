@@ -1,28 +1,12 @@
 <?php
     declare(strict_types=1);
 
-    /**
-     * The Router class provides a mechanism to handle HTTP routes, manage route groups,
-     * and dispatch requests to corresponding controllers and methods.
-     */
-
     namespace App\Http;
 
-
-    /**
-     * Class Router
-     *
-     * Handles the routing functionality of the application. This includes storing
-     * routes, dispatching them based on the requested HTTP method and path,
-     * and grouping routes under a common prefix.
-     */
     class Router {
         private array $routes = [];
         private function normalizePath(string $path): string {
-            $path = trim($path, '/');
-            $path = "/{$path}/";
-            return preg_replace('#/{2,}#', '/', $path);
-
+            return trim($path, '/');
         }
 
         public function add(string $method, string $path, array $controller, string $title): void
@@ -40,6 +24,8 @@
         }
         public function group(string $prefix, callable $callback): void
         {
+            array_map($callback, $this->routes);
+
             // TODO: Funkcja do grupowania sciezek
         }
         public function dispatch(string $path): void
@@ -63,7 +49,6 @@
                 $controllerInstance->{$function}();
 //                createFooter();
 
-                echo "s";
                 return;
             }
 
