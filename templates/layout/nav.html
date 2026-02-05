@@ -44,9 +44,12 @@
                     <a class="nav-link disabled" aria-disabled="true">Disabled</a>
                 </li>
             </ul>
-            <form class="d-flex" role="search">
-                <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
-                <button class="btn btn-outline-success" type="submit">Search</button>
+            <form class="d-flex nav-item dropdown" role="search">
+                <input class="form-control me-2 dropdown-toggle" type="search" placeholder="Search" aria-label="Search" data-bs-toggle="dropdown">
+                <button class="btn btn-outline-success " type="submit">Search</button>
+                <ul class="dropdown-menu">
+
+                </ul>
             </form>
         </div>
     </div>
@@ -91,6 +94,10 @@
             // Używa debounce aby ograniczyć częstotliwość wywołań funkcji wyszukującej
             this.input.addEventListener('input',
                 this.debounce(this.handleSearch.bind(this), 300)
+            );
+            // Dodaje nasłuchiwanie na zdarzenie 'focus' (Gdy użytkownik naciśnie wyszukiwarkę i jest ona aktywna)
+            this.input.addEventListener('focus',
+                this.debounce(this.handleSearch.bind(this), 0)
             );
         }
 
@@ -137,7 +144,7 @@
          */
         getResults(searchTerm) {
             // Jeśli brak frazy wyszukiwania - zwraca pustą tablicę
-            if (!searchTerm) return [];
+            if (!searchTerm) return this.list;
 
             // Filtruje listę: tylko elementy zawierające szukaną frazę (case insensitive)
             return this.list
@@ -177,8 +184,18 @@
             // Każdy wynik jest opakowany w tag <p>
             // join('') łączy tablicę w string bez separatorów
             this.output.innerHTML = results
-                .map(result => `<div class="text-bg-dark">${result}</div>`)
+                .map(result => `<li>
+                                    <a class="dropdown-item">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16">
+                                            <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0"/>
+                                        </svg>
+                                    ${result}
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                `)
                 .join('');
+            this.output.innerHTML += `<li class="text-center"><sub >Wyniki wyszukiwania</sub></li>`;
         }
     }
 
@@ -187,7 +204,7 @@
     const search = new SearchComponent(
         ["adam", "beata", "cogah"],               // Lista do przeszukania
         "form[role='search']>input[type='search']", // Selektor pola wyszukiwania
-        "main"                                    // Selektor kontenera wyników
+        "form[role='search']>.dropdown-menu"                                    // Selektor kontenera wyników
     );
 
     // Możliwość utworzenia kolejnej instancji dla innej sekcji strony:
