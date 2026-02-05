@@ -2,10 +2,19 @@
     declare(strict_types=1);
 
     use App\Controller\SiteController;
+    use App\Http\Router;
 
-    /** @var App\Http\Router $router */
+    /**
+     * Definicja tras
+     *
+     * @var App\Http\Router $router
+     */
+    $router->group($_ENV['ROOT_DIR'], function (Router $router) {
+        $router->add('GET', '/', [SiteController::class, 'home']);
 
-    $router->add('GET', '/grzesiu/', [SiteController::class, 'home'], 'Home');
-    $router->add('GET', '/grzesiu/login', [SiteController::class, 'login'], 'Login');
-    $router->add('GET', '/grzesiu/logout', [SiteController::class, 'logout'], 'Logout');
-    $router->add('GET', '/grzesiu/register', [SiteController::class, 'register'], 'Register');
+        $router->group('/login', function (Router $router) {
+            $router->add('GET', '/', [SiteController::class, 'login']);
+            $router->add('POST', '/', [AuthController::class, 'login']);
+        });
+
+    });

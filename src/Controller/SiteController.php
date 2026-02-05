@@ -3,50 +3,29 @@
 
     namespace App\Controller;
 
-    class SiteController
+    use App\View\View;
+
+
+    final class SiteController
     {
-        private function view(string $view, array $params = []): void
+        private View $view;
+
+        public function __construct(View $view)
         {
-            $viewFile = dirname(__DIR__, 2) . '/templates/' . trim($view, '/') . '.php';
-
-            if (!is_file($viewFile)) {
-                http_response_code(500);
-                echo 'View not found';
-                return;
-            }
-
-            extract($params, EXTR_SKIP);
-            require_once $viewFile;
+            $this->view = $view;
         }
-
-
-
 
         public function home(): void
         {
-            $pdo = require dirname(__DIR__, 2) . '/config/database.php';
-
-            $stmt = $pdo->query("SELECT id FROM `test`");
-            $rows = $stmt->fetchAll();
-
-            $this->view('pages/home', [
-                'rows' => $rows
+            $this->view->renderPage('home', [
+                'title' => 'Home'
             ]);
         }
 
         public function login(): void
         {
-            $this->view('pages/login');
+            $this->view->renderPage('login', [
+                'title' => 'Login'
+            ]);
         }
-
-        public function logout(): void
-        {
-            $this->view('pages/logout');
-        }
-
-        public function register(): void
-        {
-            $this->view('pages/register');
-        }
-
     }
