@@ -52,58 +52,150 @@
     </div>
 </nav>
 <main>
-    <p>lorem</p>
 </main>
 <script>
-    let list = ["adam","beata","cogah"]; // Elementy do wyszukiwania
-    console.log(list);
+       /**
+     * Klasa SearchComponent - komponent do wyszukiwania i wyświetlania wyników
+     * Implementuje wzorzec projektowy komponentu dla możliwości wielokrotnego użycia
+     */
+    class SearchComponent {
+        /**
+         * Konstruktor inicjalizujący komponent wyszukiwarki
+         * @param {Array<string>} list - Tablica elementów do przeszukiwania
+         * @param {string} inputSelector - Selektor CSS dla pola input wyszukiwania
+         * @param {string} outputSelector - Selektor CSS dla kontenera wyników
+         */
+        constructor(list, inputSelector, outputSelector) {
+            // Przechowuje oryginalną listę elementów do wyszukiwania
+            this.list = list;
 
-    const inputSearch = document.querySelector("form[role='search']>input[type='search']"); // odwolanie do inputa
-    const main = document.querySelector("main");                                            // odwolanie do main
-    let addedInMain = [];                                                                   // elementy dodane do maina
+            // Znajduje pole input wyszukiwarki w DOM na podstawie podanego selektora
+            this.input = document.querySelector(inputSelector);
 
+            // Znajduje kontener dla wyników wyszukiwania w DOM
+            this.output = document.querySelector(outputSelector);
 
-    inputSearch.addEventListener("keyup",()=>{                                              // kiedy zostala zaktualizowany input
-        while(addedInMain.length >= 1){                                                     // usuwa elementy po poprzednim wyszukiwaniu
-            addedInMain[0].remove()
-            addedInMain.shift()
+            // Zmienna do przechowywania ID timeoutu dla debouncingu
+            this.timeoutId = null;
+
+            // Inicjalizacja komponentu - podpięcie event listenerów
+            this.init();
         }
 
-        const searching = inputSearch.value;                                                // pobiera wpisaną wartość
-        let result = [];                                                                    // tutaj będą przechowywane gotowe elementy innerHTML
-
-        if( searching.trim().length > 0)                                                    // wyszukiwarka dziala, jeśli coś jest w inpucie
-        {
-            const regSearch = new RegExp(searching, "gm");                                  // regex znajdujący wpisaną frazę
-
-            list.forEach(product =>{
-                // znajduje z listy indexy, w których wystepuje podana fraza
-                const matchingSearch = product.matchAll(regSearch);
-                let indexes = []
-                for(const match of matchingSearch) {
-                    indexes.push(match.index)
-                }
-
-                if(indexes.length > 0) {                                                    // długość 0 oznacza, ze nie znaleziono wyników, bo nie ma indexu
-                    let stringWithMark = "";                                                // tworzenie stringa z wyróżnieniem podanej frazy
-                    let endOfMark = 0                                                       // granica z wyróznieniem
-                    for (let i of indexes) {                                                // wychwytuje index, od której zaczyna się dana fraza
-                        stringWithMark += product.slice(endOfMark, i);                      // dodaje do stringa zawartości niewyróżnionej
-                        endOfMark = (i + searching.length);                                 // oblicza koniec wyroznienia dodając do indexu zaczynającego fraze, długość frazy
-                        stringWithMark += "<mark>" + product.slice(i, endOfMark) + "</mark>"; // dodanie wyrożnionego elementu
-                    }
-                    console.log(endOfMark)
-                    stringWithMark += product.slice(endOfMark, product.length)              // gdy indexy się z wyróżnieniem się skończyły, konkatenuje ewentuale pozostałości stringa
-                    result.push(stringWithMark);                                            // dołącza do tablicy z innerHTML
-                }
-            })
+        /**
+         * Inicjalizuje komponent - podpina event listener do pola input
+         * @private
+         */
+        init() {
+            // Dodaje nasłuchiwanie na zdarzenie 'input' (każda zmiana wartości)
+            // Używa debounce aby ograniczyć częstotliwość wywołań funkcji wyszukującej
+            this.input.addEventListener('input',
+                this.debounce(this.handleSearch.bind(this), 300)
+            );
         }
-        for(let ind in result) {                                                            // dla każdej wyszukanej frazy, tworzy element w tablicy i dodaje go do maina
-            addedInMain.push(document.createElement("p"));
-            addedInMain[addedInMain.length-1].innerHTML = result[ind];
-            main.appendChild(addedInMain[addedInMain.length-1]);
+
+        /**
+         * Funkcja debounce - ogranicza częstotliwość wywoływania funkcji
+         * Zapobiega nadmiernemu obciążeniu podczas szybkiego wpisywania
+         * @param {Function} func - Funkcja do wykonania
+         * @param {number} delay - Opóźnienie w milisekundach
+         * @returns {Function} Funkcja opakowująca z debouncingiem
+         */
+        debounce(func, delay) {
+            return (...args) => {
+                // Czyści poprzedni timeout jeśli istnieje
+                clearTimeout(this.timeoutId);
+
+                // Ustawia nowy timeout dla funkcji
+                this.timeoutId = setTimeout(() => {
+                    // Wywołuje funkcję z zachowaniem kontekstu 'this' i argumentami
+                    func.apply(this, args);
+                }, delay);
+            };
         }
-    })
+
+        /**
+         * Obsługuje zdarzenie wyszukiwania - główna logika wyszukiwarki
+         * @private
+         */
+        handleSearch() {
+            // Pobiera i czyści wartość z pola input (usuwa białe znaki)
+            const searchTerm = this.input.value.trim();
+
+            // Pobiera przefiltrowane wyniki na podstawie wyszukiwanej frazy
+            const results = this.getResults(searchTerm);
+
+            // Renderuje wyniki w kontenerze
+            this.render(results);
+        }
+
+        /**
+         * Filtruje listę i zwraca pasujące elementy
+         * @param {string} searchTerm - Fraza do wyszukania
+         * @returns {Array<string>} Tablica wyników z podświetlonymi dopasowaniami
+         * @private
+         */
+        getResults(searchTerm) {
+            // Jeśli brak frazy wyszukiwania - zwraca pustą tablicę
+            if (!searchTerm) return [];
+
+            // Filtruje listę: tylko elementy zawierające szukaną frazę (case insensitive)
+            return this.list
+                .filter(item => item.toLowerCase().includes(searchTerm.toLowerCase()))
+
+                // Dla każdego pasującego elementu dodaje znaczniki <mark> do podświetlenia
+                .map(item => this.highlight(item, searchTerm));
+        }
+
+        /**
+         * Podświetla dopasowaną frazę w tekście używając znacznika <mark>
+         * @param {string} text - Tekst do przetworzenia
+         * @param {string} term - Fraza do podświetlenia
+         * @returns {string} Tekst z podświetloną frazą
+         * @private
+         */
+        highlight(text, term) {
+            // Escape'uje znaki specjalne regex w szukanej frazie
+            // np. '.' staje się '\.', '*' staje się '\*'
+            const escaped = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+            // Tworzy regex do globalnego (g) i case-insensitive (i) wyszukiwania
+            const regex = new RegExp(`(${escaped})`, 'gi');
+
+            // Zamienia wszystkie wystąpienia frazy na <mark>fraza</mark>
+            // $1 w replace odnosi się do pierwszej grupy przechwytującej z regex
+            return text.replace(regex, '<mark>$1</mark>');
+        }
+
+        /**
+         * Renderuje wyniki wyszukiwania w kontenerze
+         * @param {Array<string>} results - Tablica sformatowanych wyników (z HTML)
+         * @private
+         */
+        render(results) {
+            // Ustawia zawartość HTML kontenera wyników
+            // Każdy wynik jest opakowany w tag <p>
+            // join('') łączy tablicę w string bez separatorów
+            this.output.innerHTML = results
+                .map(result => `<div class="text-bg-dark">${result}</div>`)
+                .join('');
+        }
+    }
+
+    // Przykład użycia komponentu - można tworzyć wiele instancji na stronie
+    // Każda z własną listą, polem wyszukiwania i kontenerem wyników
+    const search = new SearchComponent(
+        ["adam", "beata", "cogah"],               // Lista do przeszukania
+        "form[role='search']>input[type='search']", // Selektor pola wyszukiwania
+        "main"                                    // Selektor kontenera wyników
+    );
+
+    // Możliwość utworzenia kolejnej instancji dla innej sekcji strony:
+    // const search2 = new SearchComponent(
+    //     ["product1", "product2", "product3"],
+    //     "#other-search-input",
+    //     "#other-results"
+    // );
 </script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
 </body>
