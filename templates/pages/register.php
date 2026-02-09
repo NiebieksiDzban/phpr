@@ -1,5 +1,5 @@
 <body>
-<h1>Login</h1>
+<h1>Register</h1>
 <form method="post" class="row g-3 needs-validation" novalidate>
     <div class="col-md-4">
         <label for="first-name" class="form-label">First name</label>

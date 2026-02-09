@@ -18,13 +18,13 @@
             $router->add('POST', '/', [AuthController::class, 'postLogin']);
         });
 
-        $router->group('/logout', function (Router $router) {
-            $router->add('GET', '/', [AuthController::class, 'getLogout']);
-            $router->add('POST', '/', [AuthController::class, 'postLogout']);
-        });
+        $router->add('GET', '/logout', [AuthController::class, 'getLogout']);
 
         $router->group('/register', function (Router $router) {
             $router->add('GET', '/', [AuthController::class, 'getRegister']);
             $router->add('POST', '/', [AuthController::class, 'postRegister']);
         });
+
+        $router->add('GET', '/(?<id>\d+)', [SiteController::class, 'show']);
+
     });

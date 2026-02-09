@@ -5,7 +5,6 @@
 
     use App\Auth\AuthService;
     use App\View\View;
-    use PDO;
 
     final class AuthController
     {

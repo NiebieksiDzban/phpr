@@ -21,12 +21,4 @@
                 'title' => "Home"
             ]);
         }
-
-        public function show(string $id): void
-        {
-            $this->view->renderPage('show', [
-                'title' => 'show',
-                'id' => $id
-            ]);
-        }
     }

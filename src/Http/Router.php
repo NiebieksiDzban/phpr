@@ -4,6 +4,8 @@
     namespace App\Http;
 
     use App\Auth\AuthService;
+    use App\Controller\AuthController;
+    use App\Controller\SiteController;
     use App\View\View;
 
     /**
@@ -99,6 +101,15 @@
             }
         }
 
+        private function makeController(string $class, View $view, AuthService $auth): object
+        {
+            return match ($class) {
+                AuthController::class => new AuthController($view, $auth),
+                SiteController::class => new SiteController($view),
+                default => throw new \RuntimeException('Unknown controller: ' . $class),
+            };
+        }
+
         /**
          * Dopasowuje żądaną ścieżkę i metodę HTTP do zdefiniowanych tras.
          * Jeśli znaleziono trasę, tworzy instancję kontrolera i wywołuje
@@ -106,6 +117,7 @@
          *
          * @param string $path Ścieżka żądania HTTP do przetworzenia
          * @param View $view
+         * @param AuthService $auth
          * @return void
          */
         public function dispatch(string $path, View $view, AuthService $auth): void
@@ -123,10 +135,16 @@
 
                 [$class, $function] = $route['controller'];
 
-                $controllerInstance = new $class($view, $auth);
+
+                $controllerInstance = $this->makeController($class, $view, $auth);
+
+                if(isset($matches['id'])) {
+                    $controllerInstance->{$function}($matches['id']);
+                } else {
+                    $controllerInstance->{$function}();
+                }
 
 
-                $controllerInstance->{$function}();
 
                 return;
             }
