@@ -103,6 +103,7 @@
          * przypisaną metodę. W przypadku braku dopasowania zwraca odpowiedź 404.
          *
          * @param string $path Ścieżka żądania HTTP do przetworzenia
+         * @param View $view
          * @return void
          */
         public function dispatch(string $path, View $view): void

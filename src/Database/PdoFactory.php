@@ -4,6 +4,7 @@
     namespace App\Database;
 
     use PDO;
+    use PDOException;
     use RuntimeException;
 
     final class PdoFactory
@@ -21,15 +22,19 @@
 
             $dsn = sprintf('mysql:host=%s;dbname=%s;charset=utf8mb4', $host, $db);
 
-            return new PDO(
-                $dsn,
-                $user,
-                $pass,
-                [
-                    PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
-                    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-                    PDO::ATTR_EMULATE_PREPARES   => false,
-                ]
-            );
+            try {
+                return new PDO(
+                    $dsn,
+                    $user,
+                    $pass,
+                    [
+                        PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
+                        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+                        PDO::ATTR_EMULATE_PREPARES   => false,
+                    ]
+                );
+            } catch (PDOException $e) {
+                die($e->getMessage());
+            }
         }
     }

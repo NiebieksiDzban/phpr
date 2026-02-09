@@ -18,14 +18,7 @@
         public function home(): void
         {
             $this->view->renderPage('home', [
-                'title' => 'Home'
-            ]);
-        }
-
-        public function login(): void
-        {
-            $this->view->renderPage('login', [
-                'title' => 'Login'
+                'title' => $_SESSION['user_role']
             ]);
         }
     }
