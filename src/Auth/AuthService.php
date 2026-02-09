@@ -4,10 +4,12 @@
     namespace App\Auth;
 
     use PDO;
+
     final class AuthService
     {
         private const SESSION_USER_ID_KEY = "user_id";
         private const SESSION_USER_ROLE_KEY = "user_role";
+
 
         private PDO $pdo;
 
@@ -59,14 +61,75 @@
             session_regenerate_id(true);
         }
 
-//        public function attemptRegister(
-//            string $identifier,
-//            string $password,
-//            string
-//        ): bool
-//        {
-//            $identifier = trim($identifier);
-//        }
+        public function attemptRegister(
+            string  $identifier,
+            string  $password,
+            string  $role_name,
+
+            string  $first_name,
+            string  $last_name,
+
+            ?string $phone_number = '',
+            ?string $country = '',
+            ?string $city = '',
+            ?string $address = '',
+
+            ?string $warehouse_id = null
+        ): bool
+        {
+            $identifier = trim($identifier);
+
+            $this->pdo->beginTransaction();
+
+            $stmt = $this->pdo->prepare(
+                "INSERT INTO users(email, password, role_id) values (:identifier, :password, (SELECT id FROM roles WHERE name = :role_name))"
+            );
+
+            try {
+                $stmt->execute(['identifier' => $identifier, 'password' => $password, 'role_name' => $role_name]);
+            } catch (\PDOException $e) {
+                $this->pdo->rollBack();
+                return false;
+            }
+            $user_id = $this->pdo->lastInsertId();
+
+            try {
+                switch ($role_name) {
+                    case 'customer':
+                        $stmt = $this->pdo->prepare(
+                            "INSERT INTO customers(first_name, last_name, phone, country, city, address, user_id) VALUES (:first_name, :last_name, :phone, :country, :city, :address, :user_id)"
+                        );
+
+                        $stmt->execute([
+                            'first_name' => $first_name,
+                            'last_name' => $last_name,
+                            'phone' => $phone_number,
+                            'country' => $country,
+                            'city' => $city,
+                            'address' => $address,
+                            'user_id' => $user_id
+                        ]);
+                        break;
+                    default:
+                        $stmt = $this->pdo->prepare(
+                            "INSERT INTO employees(first_name, last_name, warehouse_id, user_id) VALUES (:first_name, :last_name, :warehouse_id, :user_id)"
+                        );
+
+                        $stmt->execute([
+                            'first_name' => $first_name,
+                            'last_name' => $last_name,
+                            'warehouse_id' => $warehouse_id,
+                            'user_id' => $user_id
+                        ]);
+                        break;
+                }
+
+                return $this->pdo->commit();
+            } catch (\PDOException $e) {
+                $this->pdo->rollBack();
+                return false;
+            }
+        }
 
         private function ensureSession(): void
         {

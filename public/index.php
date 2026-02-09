@@ -8,7 +8,8 @@
 
     $router = $app['router'];
     $view = $app['view'];
+    $auth = $app['auth'];
 
     $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) ?: '/';
-    $router->dispatch($path, $view);
+    $router->dispatch($path, $view, $auth);
 

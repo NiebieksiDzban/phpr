@@ -1,3 +1,5 @@
-<?php
-    declare(strict_types=1);
-
+<body>
+    <?= $_SESSION['user_id']?> <br>
+    <a href="./logout">Logout</a>
+    <a href="./login">Login</a>
+    <a href="./register">Register</a>

@@ -3,6 +3,7 @@
 
     namespace App\Http;
 
+    use App\Auth\AuthService;
     use App\View\View;
 
     /**
@@ -57,7 +58,7 @@
          * ścieżką bazową i normalizując wynik. Trasa jest powiązana z kontrolerem,
          * metodą HTTP oraz tytułem strony.
          *
-         * @param string $method Metoda HTTP (GET, POST, PUT, DELETE, itp.)
+         * @param string $method Metoda HTTP (GET, POST)
          * @param string $path Ścieżka trasy, która zostanie połączona z aktualną ścieżką bazową
          * @param array $controller Tablica zawierająca klasę kontrolera i nazwę metody [Class::class, 'methodName']
          * @return void
@@ -66,6 +67,7 @@
         {
             $fullPath = $this->joinPaths($this->basePath, $path);
             $fullPath = $this->normalizePath($fullPath);
+
 
             $this->routes[] = [
                 'path' => $fullPath,
@@ -106,14 +108,14 @@
          * @param View $view
          * @return void
          */
-        public function dispatch(string $path, View $view): void
+        public function dispatch(string $path, View $view, AuthService $auth): void
         {
             $path = $this->normalizePath($path);
             $method = strtoupper($_SERVER['REQUEST_METHOD']);
 
             foreach ($this->routes as $route) {
                 if (
-                    !preg_match("#^{$route['path']}$#", $path) ||
+                    !preg_match("#^{$route['path']}$#", $path, $matches) ||
                     $route['method'] !== $method
                 ) {
                     continue;
@@ -121,7 +123,7 @@
 
                 [$class, $function] = $route['controller'];
 
-                $controllerInstance = new $class($view);
+                $controllerInstance = new $class($view, $auth);
 
 
                 $controllerInstance->{$function}();
