@@ -4,7 +4,6 @@
     use App\Auth\AuthService;
     use App\Http\Router;
     use App\View\View;
-    use App\Database\PdoFactory;
     use Dotenv\Dotenv;
 
     $root = dirname(__DIR__);
