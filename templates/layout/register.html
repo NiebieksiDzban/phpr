@@ -1,0 +1,180 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Document</title>
+    <script src="https://www.google.com/recaptcha/api.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+<style>
+    .active{
+        border: none;
+        border-bottom: solid black 2px;
+
+    }
+    main > .row{
+       transition: opacity 0.5s ease-in-out;
+    }
+    main{
+        border-radius: 10px;
+        overflow: hidden;
+        background: linear-gradient( to right, #8acdf0, #ff0000) ;
+    }
+    .btn{
+        border-radius: 0;
+    }
+    .btn:active{
+        border-bottom: solid black 1px;
+    }
+    /* Animacja dla przycisków */
+    .btn {
+        transition: all 0.3s ease-in-out;
+        position: relative;
+    }
+
+    .btn.active {
+        border: none;
+        border-bottom: solid black 1px;
+        background-color: transparent !important;
+        color: black !important;
+        transform: translateY(-1px);
+    }
+
+    .btn:not(.active) {
+        border: none;
+        border-bottom: solid transparent 1px;
+        background-color: transparent !important;
+        color: #6c757d !important;
+    }
+
+    /* Animacja dla kontenera */
+    main>div {
+        transition: transform 0.5s ease-in-out;
+    }
+
+    /* Animacja dla obrazka */
+    aside img {
+        transition: transform 0.5s ease-in-out, opacity 0.5s ease-in-out;
+    }
+
+    aside:hover img {
+        transform: scale(1.05);
+    }
+
+    /* Animacja linii pod przyciskiem */
+    .btn::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 0;
+        height: 2px;
+        background-color: black;
+        transition: width 0.3s ease-in-out;
+    }
+
+    .btn.active::after {
+        width: 100%;
+    }
+</style>
+
+</head>
+<body>
+    <main class="container text-bg-primary mt-sm-5" >
+        <div class="row d-flex flex-sm-row-reverse" >
+            <section class="col-12 col-sm-7 text-bg-light">
+                <div class="row d-flex justify-content-evenly p-2">
+                    <button id="login" class="col-5 btn active" data-bs-toggle="button">Login</button>
+                    <button id="register" class="col-5 btn" data-bs-toggle="button" >Register</button>
+                </div>
+
+                <form id="formLogin" action="" method="post">
+                    <div class="mb-3">
+                        <label for="loginEmail" class="form-label">Email address</label>
+                        <input id="loginEmail" type="email" class="form-control" aria-describedby="emailHelp" placeholder="example@domain.com">
+                        <div id="emailHelp" class="form-text"></div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="loginPass" class="form-label">Password</label>
+                        <input id="loginPass" type="password" class="form-control" aria-describedby="passHelp">
+                        <div id="passHelp">Do not give your password to anyone</div>
+                    </div>
+                    <div class="mb-3">
+                        <input type="checkbox" class="form-check-input" id="rememberCheck">
+                        <label for="rememberCheck" class="form-check-label">Remember me</label>
+                    </div>
+                    <button type="submit" class="btn bg-primary">Sign in</button>
+                </form>
+
+                <form id="formReg" class="d-none" action="" method="post">
+                    <div class="mb-3">
+                        <label for="regName" class="form-label">Name</label>
+                        <input id="regName" class="form-control" placeholder="John Pork">
+                    </div>
+                    <div class="mb-3">
+                        <label for="regEmail" class="form-label">Email address</label>
+                        <input id="regEmail" type="email" class="form-control" aria-describedby="RegEmailHelp" placeholder="example@domain.com">
+                        <div id="regEmailHelp" class="form-text"></div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="RegPass" class="form-label">Password</label>
+                        <input id="RegPass" type="password" class="form-control" aria-describedby="RegPassHelp">
+                        <label for="RepRegPass" class="form-label">Repeat password</label>
+                        <input id="RepRegPass" type="password" class="form-control">
+                        <div id="RegPassHelp">The password should consist of at least 6 characters and contain an uppercase letter and a special character.</div>
+
+                    </div>
+                    <div class="mb-3">
+
+                    </div>
+                    <div class="mb-3">
+                        <input type="checkbox" class="form-check-input" id="acceptRulesCheck">
+                        <label for="acceptRulesCheck" class="form-check-label">Accept rules</label>
+                    </div>
+                    <button type="submit" class="btn btn-danger">Sign up</button>
+                </form>
+            </section>
+            <aside class="col-12 col-sm-5 text-center d-none d-sm-flex  container-fluid justify-content-center align-items-center">
+                <img class="col-12" src="Untitled%20design.png" alt="Obrazek">
+            </aside>
+
+        </div>
+    </main>
+    <script>
+        const buttonLogin = document.querySelector("#login");
+        const buttonReg = document.querySelector("#register");
+        const row = document.querySelector("main>div");
+        const formLogin = document.querySelector("#formLogin");
+        const formReg = document.querySelector("#formReg");
+
+        function setActiveButton(activeButton, activeForm) {
+            // Resetuj oba przyciski i formularze
+            row.style.opacity = 0;
+            buttonLogin.classList.remove("active");
+            buttonReg.classList.remove("active");
+            formLogin.classList.add("d-none");
+            formReg.classList.add("d-none");
+
+            // Ustaw aktywny przycisk i formularz
+            activeButton.classList.add("active");
+            activeForm.classList.remove("d-none")
+
+            // Ustaw odpowiedni kierunek dla wiersza
+            if (activeButton === buttonLogin) {
+                row.classList.add("flex-sm-row-reverse");
+            } else {
+                row.classList.remove("flex-sm-row-reverse");
+            }
+            row.style.opacity = 1;
+        }
+
+        buttonLogin.addEventListener("click", () => {
+            setActiveButton(buttonLogin, formLogin);
+        });
+
+        buttonReg.addEventListener("click", () => {
+            setActiveButton(buttonReg, formReg);
+        });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+</body>
+</html>
