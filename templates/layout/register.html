@@ -47,8 +47,9 @@
     }
 
     /* Animacja dla kontenera */
-    main>div {
-        transition: transform 0.5s ease-in-out;
+    main > div {
+        transition: opacity 0.3s ease-in-out;
+        opacity: 1;
     }
 
     /* Animacja dla obrazka */
@@ -79,7 +80,7 @@
 
 </head>
 <body>
-    <main class="container text-bg-primary mt-sm-5" >
+    <main class="container container-md-fluid text-bg-primary mt-md-5" >
         <div class="row d-flex flex-sm-row-reverse" >
             <section class="col-12 col-sm-7 text-bg-light">
                 <div class="row d-flex justify-content-evenly p-2">
@@ -140,40 +141,154 @@
         </div>
     </main>
     <script>
-        const buttonLogin = document.querySelector("#login");
-        const buttonReg = document.querySelector("#register");
-        const row = document.querySelector("main>div");
-        const formLogin = document.querySelector("#formLogin");
-        const formReg = document.querySelector("#formReg");
+        // const buttonLogin = document.querySelector("#login");
+        // const buttonReg = document.querySelector("#register");
+        // const row = document.querySelector("main>div");
+        // const formLogin = document.querySelector("#formLogin");
+        // const formReg = document.querySelector("#formReg");
+        //
+        // function setActiveButton(activeButton, activeForm) {
+        //     // Resetuj oba przyciski i formularze
+        //     row.style.opacity = 0;
+        //     buttonLogin.classList.remove("active");
+        //     buttonReg.classList.remove("active");
+        //     formLogin.classList.add("d-none");
+        //     formReg.classList.add("d-none");
+        //
+        //     // Ustaw aktywny przycisk i formularz
+        //     activeButton.classList.add("active");
+        //     activeForm.classList.remove("d-none")
+        //
+        //     // Ustaw odpowiedni kierunek dla wiersza
+        //     if (activeButton === buttonLogin) {
+        //         row.classList.add("flex-sm-row-reverse");
+        //     } else {
+        //         row.classList.remove("flex-sm-row-reverse");
+        //     }
+        //     row.style.opacity = 1;
+        // }
+        //
+        // buttonLogin.addEventListener("click", () => {
+        //     setActiveButton(buttonLogin, formLogin);
+        // });
+        //
+        // buttonReg.addEventListener("click", () => {
+        //     setActiveButton(buttonReg, formReg);
+        // });
 
-        function setActiveButton(activeButton, activeForm) {
-            // Resetuj oba przyciski i formularze
-            row.style.opacity = 0;
-            buttonLogin.classList.remove("active");
-            buttonReg.classList.remove("active");
-            formLogin.classList.add("d-none");
-            formReg.classList.add("d-none");
 
-            // Ustaw aktywny przycisk i formularz
-            activeButton.classList.add("active");
-            activeForm.classList.remove("d-none")
+        class FormSwitcher {
+            constructor(
+                containerSelector,
+                firstButtonSelector,
+                secondButtonSelector,
+                firstShowElementSelector,
+                secondShowElementSelector,
+            ){
+                this.config = {
+                    containerSelector: containerSelector,
+                    firstButtonSelector: firstButtonSelector,
+                    secondButtonSelector: secondButtonSelector,
+                    firstElementSelector: firstShowElementSelector,
+                    secondElementSelector: secondShowElementSelector
+                };
+                this.class = {
+                    activeClass: 'active',
+                    hiddenClass: 'd-none',
+                    changeDirection: 'flex-sm-row-reverse'
+                };
 
-            // Ustaw odpowiedni kierunek dla wiersza
-            if (activeButton === buttonLogin) {
-                row.classList.add("flex-sm-row-reverse");
-            } else {
-                row.classList.remove("flex-sm-row-reverse");
+                this.init();
             }
-            row.style.opacity = 1;
+
+            init(){
+                this.elements = {
+                    firstButton: document.querySelector(this.config.firstButtonSelector),
+                    secondButton: document.querySelector(this.config.secondButtonSelector),
+                    firstElement: document.querySelector(this.config.firstElementSelector),
+                    secondElement: document.querySelector(this.config.secondElementSelector),
+                    container: document.querySelector(this.config.containerSelector)
+
+                }
+                if(this.validateElements())
+                {
+                    this.bindEvent();
+                }
+            }
+
+            validateElements(){
+                Object.entries(this.elements).forEach(([name, element])=>{
+                    if(!element) {
+                        console.log(`Element ${name} not found with selector: ${this.config[`${name}Selector`]}`);
+                        return false;
+                    }
+                })
+                return true;
+
+            }
+
+            bindEvent(){
+                this.elements.firstButton.addEventListener("click", () =>
+                    this.activeState(
+                        this.elements.firstButton,
+                        this.elements.firstElement
+                    )
+                );
+                this.elements.secondButton.addEventListener("click",() =>
+                    this.activeState(
+                        this.elements.secondButton,
+                        this.elements.secondElement
+                    )
+                );
+            }
+            activeState(activeButton, activeForm){
+                this.resetAll();
+                this.showForm(activeButton, activeForm);
+                this.changeDirection(activeButton);
+                this.fadeContainer();
+                return 0;
+            }
+            resetAll(){
+                // deaktywacja przyciskow
+                this.elements.firstButton.classList.remove(this.class.activeClass);
+                this.elements.secondButton.classList.remove(this.class.activeClass);
+
+                // ukrywanie formularzy
+                this.elements.firstElement.classList.add(this.class.hiddenClass);
+                this.elements.secondElement.classList.add(this.class.hiddenClass);
+
+                // animacja ukrycia
+                this.elements.container.style.opacity = 0;
+            }
+            showForm(activeButton, activeForm){
+                // pokazywanie formularza i aktywowanie przycisku
+                activeButton.classList.add(this.class.activeClass);
+                activeForm.classList.remove(this.class.hiddenClass);
+            }
+            changeDirection(activeButton){
+                // jeden formularz po prawej, drugi po lewej
+                if(activeButton === this.elements.firstButton){
+                    this.elements.container.classList.add(this.class.changeDirection);
+                }
+                else{
+                    this.elements.container.classList.remove(this.class.changeDirection);
+                }
+            }
+            fadeContainer(){
+                // request animation frame odpowiada za płynną animacje
+                requestAnimationFrame(()=>{
+                   this.elements.container.style.opacity = 1;
+                });
+            }
         }
+        const switcher = new FormSwitcher(
+            "main > .row",
+            "#login",
+            "#register",
+            "#formLogin",
+            "#formReg"
 
-        buttonLogin.addEventListener("click", () => {
-            setActiveButton(buttonLogin, formLogin);
-        });
-
-        buttonReg.addEventListener("click", () => {
-            setActiveButton(buttonReg, formReg);
-        });
+        );
     </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
 </body>
